@@ -1,6 +1,0 @@
-C:\Users\fiyasns\Documents\GitHub\converterService\converterService\converterService\obj\RELEASE\net6.0\converterService.csproj.AssemblyReference.cache
-C:\Users\fiyasns\Documents\GitHub\converterService\converterService\converterService\obj\RELEASE\net6.0\converterService.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\fiyasns\Documents\GitHub\converterService\converterService\converterService\obj\RELEASE\net6.0\converterService.AssemblyInfoInputs.cache
-C:\Users\fiyasns\Documents\GitHub\converterService\converterService\converterService\obj\RELEASE\net6.0\converterService.AssemblyInfo.cs
-C:\Users\fiyasns\Documents\GitHub\converterService\converterService\converterService\obj\RELEASE\net6.0\converterService.csproj.CoreCompileInputs.cache
-C:\Users\fiyasns\Documents\GitHub\converterService\converterService\converterService\obj\RELEASE\net6.0\converterService.MvcApplicationPartsAssemblyInfo.cache

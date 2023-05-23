@@ -13,7 +13,7 @@ await CreateHostBuilder(args)
         string port = Environment.GetEnvironmentVariable("PORT");
         OfficeExportsPdfA();
 
-        webBuilder.UseUrls($"http://localhost:{port}") // <-----
+        webBuilder.UseUrls($"http://0.0.0.0:{port}") // <-----
             .ConfigureServices(services =>
             {
                 services.AddControllers();
@@ -73,12 +73,16 @@ static void SetRegistryValue(string version)
     {
         if (registryKey != null)
         {
-            registryKey.SetValue("LastISO19005-1", 1, RegistryValueKind.DWord);
+            // Subkey exists, set the value
+            registryKey.SetValue("LastISO19005-1:2005", 1, RegistryValueKind.DWord);
         }
         else
         {
-            // Handle registry key not found error
-            Console.WriteLine("Registry key not found.");
+            // Subkey doesn't exist, create it and set the value
+            using (RegistryKey newSubKey = Registry.CurrentUser.CreateSubKey(subKey))
+            {
+                newSubKey.SetValue("LastISO19005-1:2005", 1, RegistryValueKind.DWord);
+            }
         }
     }
 }

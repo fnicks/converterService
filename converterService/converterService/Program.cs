@@ -74,14 +74,14 @@ static void SetRegistryValue(string version)
         if (registryKey != null)
         {
             // Subkey exists, set the value
-            registryKey.SetValue("LastISO19005-1:2005", 1, RegistryValueKind.DWord);
+            registryKey.SetValue("LastISO19005-1", 1, RegistryValueKind.DWord);
         }
         else
         {
             // Subkey doesn't exist, create it and set the value
             using (RegistryKey newSubKey = Registry.CurrentUser.CreateSubKey(subKey))
             {
-                newSubKey.SetValue("LastISO19005-1:2005", 1, RegistryValueKind.DWord);
+                newSubKey.SetValue("LastISO19005-1", 1, RegistryValueKind.DWord);
             }
         }
     }

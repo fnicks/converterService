@@ -16,20 +16,20 @@ using Microsoft.VisualBasic;
 public class OfficeToPdfController : ControllerBase
 {
     [HttpPost]
-    public async Task<IActionResult> ConvertToPdf(IFormFile officeFile)
+    public async Task<IActionResult> ConvertToPdf(IFormFile file)
     {
-        if (officeFile == null || officeFile.Length == 0)
+        if (file == null || file.Length == 0)
         {
             return BadRequest("Не найден файл в запросе");
         }
 
-        var fileName = officeFile.FileName;
+        var fileName = file.FileName;
         var filePath = Path.GetTempFileName();
         var pdfPath = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(fileName) + ".pdf");
 
         using (var stream = new FileStream(filePath, FileMode.Create))
         {
-            await officeFile.CopyToAsync(stream);
+            await file.CopyToAsync(stream);
         }
 
         string format = checkFileType(fileName);

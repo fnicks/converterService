@@ -123,9 +123,9 @@ public class OfficeToPdfController : ControllerBase
 
     private string checkFileType(string fileName)
     {
-        string[] word = { "doc", "docx", "docm", "rtf", "xml", "pdf", "odt", "txt" };
+        string[] word = { "doc", "docx", "docm", "rtf", "xml", "pdf", "odt", "txt", "wbk" };
         string[] powerPoint = { "pptx", "pptm", "ppt" };
-        string[] picture = { "jpg", "jpeg", "png" };
+        string[] picture = { "jpg", "jpeg", "png", "tiff", "tif" };
         string[] excel = { "xls", "xlsx", "csv" };
         string[] array = fileName.Split(".");
         int lenght = array.Length;

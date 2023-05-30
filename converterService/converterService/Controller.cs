@@ -132,12 +132,10 @@ public class OfficeToPdfController : ControllerBase
         if (lenght > 0)
         {
             string extension = array[lenght - 1];
-            if (word.Contains(extension)) return "word";
             if (excel.Contains(extension)) return "excel";
-            if (picture.Contains(extension)) return "picture";
-            if (powerPoint.Contains(extension)) return "powerPoint";
-
-            return "Error";
+            else if (picture.Contains(extension)) return "picture";
+            else if (powerPoint.Contains(extension)) return "powerPoint";
+            else return "word";
         }
         else return "Error";
     }

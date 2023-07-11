@@ -47,9 +47,10 @@ public class OfficeToPdfController : ControllerBase
     private void ConvertWordToPdf(string inputFile, string outputFile)
     {
         var wordApp = new Application();
-        wordApp.Visible = false;
+        wordApp.Visible = true;
         wordApp.DisplayAlerts = WdAlertLevel.wdAlertsNone;
         var doc = wordApp.Documents.Open(inputFile);
+
         try
         {
             wordApp.Run("defaultMacro");
@@ -140,7 +141,7 @@ public class OfficeToPdfController : ControllerBase
 
     private string checkFileType(string fileName)
     {
-        string[] word = { "doc", "docx", "docm", "rtf", "xml", "pdf", "odt", "txt", "wbk" };
+        string[] word = { "doc", "docx", "docm", "rtf", "xml", "pdf", "odt", "txt", "wbk", "txt", ".docx", ".docm", ".dotx", ".dotm", ".docb" };
         string[] powerPoint = { "pptx", "pptm", "ppt" };
         string[] picture = { "jpg", "jpeg", "png", "tiff", "tif" };
         string[] excel = { "xls", "xlsx", "csv" };
@@ -149,11 +150,12 @@ public class OfficeToPdfController : ControllerBase
         if (lenght > 0)
         {
             string extension = array[lenght - 1];
-            if (excel.Contains(extension)) return "excel";
+            if (word.Contains(extension)) return "word";
+            else if (excel.Contains(extension)) return "excel";
             else if (picture.Contains(extension)) return "picture";
             else if (powerPoint.Contains(extension)) return "powerPoint";
             else if (extension == "pdf") return "pdf";
-            else return "word";
+            else return "Error";
         }
         else return "Error";
     }

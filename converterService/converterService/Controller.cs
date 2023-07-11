@@ -3,6 +3,20 @@ using Microsoft.Office.Core;
 using Microsoft.Office.Interop.Word;
 using System.Diagnostics;
 
+public class CustomError
+{
+    public string error { get; set; }
+    public string description { get; set; }
+    public int status { get; set; }
+
+    public CustomError(string error, string description, int status)
+    {
+        this.error = error;
+        this.description = description;
+        this.status = status;
+    }
+}
+
 [Route("convert")]
 [ApiController]
 public class OfficeToPdfController : ControllerBase
@@ -12,10 +26,12 @@ public class OfficeToPdfController : ControllerBase
     {
         if (file == null || file.Length == 0)
         {
-            return BadRequest("Не найден файл в запросе");
+            return BadRequest(new CustomError("Отсутвует файл в запросе", "Файл должен называется file", 400));
         }
 
-        var fileName = file.FileName;
+
+
+    var fileName = file.FileName;
         var filePath = Path.GetTempFileName();
         var pdfPath = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(fileName) + "_converted.pdf");
 
@@ -30,7 +46,7 @@ public class OfficeToPdfController : ControllerBase
         else if (format == "excel") ConvertExcelToPdf(filePath, pdfPath);
         else if (format == "picture") ConvertPictureToPdf(filePath, pdfPath);
         else if (format == "powerPoint") ConvertPowerPointToPdf(filePath, pdfPath);
-        else return BadRequest("Неверный формат");
+        else return BadRequest(new CustomError("Неверный формат", "Файл не может быть сконвертирован в PDF, так как формат не поддерживается", 400));
         byte[] pdfBytes;
         if (convertAgain)
         {

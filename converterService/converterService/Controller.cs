@@ -1,15 +1,7 @@
-﻿using System.IO;
-using System.Reflection.Metadata;
-using System.Reflection.PortableExecutable;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Office.Core;
-using Microsoft.Office.Interop.Excel;
 using Microsoft.Office.Interop.Word;
-using Microsoft.VisualBasic;
+using System.Diagnostics;
 
 [Route("convert")]
 [ApiController]
@@ -25,29 +17,36 @@ public class OfficeToPdfController : ControllerBase
 
         var fileName = file.FileName;
         var filePath = Path.GetTempFileName();
-        var pdfPath = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(fileName) + ".pdf");
+        var pdfPath = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(fileName) + "_converted.pdf");
 
         using (var stream = new FileStream(filePath, FileMode.Create))
         {
             await file.CopyToAsync(stream);
         }
-
+        Boolean convertAgain = true;
         string format = checkFileType(fileName);
         if (format == "word") ConvertWordToPdf(filePath, pdfPath);
+        else if (format == "pdf") { ConvertToPdfA(filePath, pdfPath); convertAgain = false; }
         else if (format == "excel") ConvertExcelToPdf(filePath, pdfPath);
         else if (format == "picture") ConvertPictureToPdf(filePath, pdfPath);
         else if (format == "powerPoint") ConvertPowerPointToPdf(filePath, pdfPath);
         else return BadRequest("Неверный формат");
-        var pdfBytes = await System.IO.File.ReadAllBytesAsync(pdfPath);
+        byte[] pdfBytes;
+        if (convertAgain)
+        {
+            ConvertToPdfA(pdfPath, filePath);
+            pdfBytes = await System.IO.File.ReadAllBytesAsync(filePath);
+        }
+        else pdfBytes = await System.IO.File.ReadAllBytesAsync(pdfPath);
         System.IO.File.Delete(filePath);
         System.IO.File.Delete(pdfPath);
 
-        return File(pdfBytes, "application/pdf", $"{Path.GetFileNameWithoutExtension(fileName)}.pdf");
+        return File(pdfBytes, "application/pdf", $"{Path.GetFileNameWithoutExtension(fileName)}_converted.pdf");
     }
 
     private void ConvertWordToPdf(string inputFile, string outputFile)
     {
-        var wordApp = new Microsoft.Office.Interop.Word.Application();
+        var wordApp = new Application();
         wordApp.Visible = false;
         wordApp.DisplayAlerts = WdAlertLevel.wdAlertsNone;
         var doc = wordApp.Documents.Open(inputFile);
@@ -55,9 +54,27 @@ public class OfficeToPdfController : ControllerBase
         {
             wordApp.Run("defaultMacro");
         } catch (Exception e) { }
-        doc.ExportAsFixedFormat(outputFile, WdExportFormat.wdExportFormatPDF, UseISO19005_1: true);
+        doc.ExportAsFixedFormat(outputFile, WdExportFormat.wdExportFormatPDF);
         doc.Close();
         wordApp.Quit();
+    }
+
+    public void ConvertToPdfA(string sourceFilePath, string destinationFilePath)
+    {
+        string ghostscriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ghostscript\\gswin64c.exe");
+        string deviceName = "pdfwrite";
+        string outputFileType = "-sOutputFile=";
+        string pdfaParams = "-dPDFA=1 -dPDFACompatibilityPolicy=1 -dPDFACompatibilityPolicy=1";
+        string outputIntentParams = "-sColorConversionStrategy=UseDeviceIndependentColor";
+        string arguments = $"-dNOPAUSE -dBATCH -dSAFER -sDEVICE={deviceName} {outputFileType}\"{destinationFilePath}\" {pdfaParams} {outputIntentParams} \"{sourceFilePath}\"";
+        Process process = new Process();
+        ProcessStartInfo startInfo = new ProcessStartInfo(ghostscriptPath, arguments);
+        startInfo.RedirectStandardOutput = true;
+        startInfo.UseShellExecute = false;
+        startInfo.CreateNoWindow = true;
+        process.StartInfo = startInfo;
+        process.Start();
+        process.WaitForExit();
     }
 
     private void ConvertPowerPointToPdf(string inputFile, string outputFile)
@@ -135,6 +152,7 @@ public class OfficeToPdfController : ControllerBase
             if (excel.Contains(extension)) return "excel";
             else if (picture.Contains(extension)) return "picture";
             else if (powerPoint.Contains(extension)) return "powerPoint";
+            else if (extension == "pdf") return "pdf";
             else return "word";
         }
         else return "Error";

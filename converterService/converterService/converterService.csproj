@@ -17,15 +17,6 @@
       <Isolated>false</Isolated>
       <EmbedInteropTypes>true</EmbedInteropTypes>
     </COMReference>
-    <COMReference Include="Microsoft.Office.Core">
-      <WrapperTool>tlbimp</WrapperTool>
-      <VersionMinor>7</VersionMinor>
-      <VersionMajor>2</VersionMajor>
-      <Guid>2df8d04c-5bfa-101b-bde5-00aa0044de52</Guid>
-      <Lcid>0</Lcid>
-      <Isolated>false</Isolated>
-      <EmbedInteropTypes>true</EmbedInteropTypes>
-    </COMReference>
     <COMReference Include="Microsoft.Office.Interop.PowerPoint">
       <WrapperTool>tlbimp</WrapperTool>
       <VersionMinor>11</VersionMinor>
@@ -35,11 +26,38 @@
       <Isolated>false</Isolated>
       <EmbedInteropTypes>true</EmbedInteropTypes>
     </COMReference>
-    <COMReference Include="Microsoft.Office.Interop.Excel">
+    <COMReference Include="Microsoft.Office.Core">
       <WrapperTool>tlbimp</WrapperTool>
       <VersionMinor>8</VersionMinor>
+      <VersionMajor>2</VersionMajor>
+      <Guid>2df8d04c-5bfa-101b-bde5-00aa0044de52</Guid>
+      <Lcid>0</Lcid>
+      <Isolated>false</Isolated>
+      <EmbedInteropTypes>true</EmbedInteropTypes>
+    </COMReference>
+    <COMReference Include="Microsoft.Office.Interop.Excel">
+      <WrapperTool>tlbimp</WrapperTool>
+      <VersionMinor>9</VersionMinor>
       <VersionMajor>1</VersionMajor>
       <Guid>00020813-0000-0000-c000-000000000046</Guid>
+      <Lcid>0</Lcid>
+      <Isolated>false</Isolated>
+      <EmbedInteropTypes>true</EmbedInteropTypes>
+    </COMReference>
+    <COMReference Include="AcroPDFLib">
+      <WrapperTool>tlbimp</WrapperTool>
+      <VersionMinor>0</VersionMinor>
+      <VersionMajor>1</VersionMajor>
+      <Guid>05bfd3f1-6319-4f30-b752-c7a22889bcc4</Guid>
+      <Lcid>0</Lcid>
+      <Isolated>false</Isolated>
+      <EmbedInteropTypes>true</EmbedInteropTypes>
+    </COMReference>
+    <COMReference Include="Acrobat">
+      <WrapperTool>tlbimp</WrapperTool>
+      <VersionMinor>0</VersionMinor>
+      <VersionMajor>1</VersionMajor>
+      <Guid>78165d71-df28-11d3-9a89-005004a56d53</Guid>
       <Lcid>0</Lcid>
       <Isolated>false</Isolated>
       <EmbedInteropTypes>true</EmbedInteropTypes>

@@ -63,10 +63,9 @@ public class OfficeToPdfController : ControllerBase
     private void ConvertWordToPdf(string inputFile, string outputFile)
     {
         var wordApp = new Application();
-        wordApp.Visible = true;
+        wordApp.Visible = false;
         wordApp.DisplayAlerts = WdAlertLevel.wdAlertsNone;
         var doc = wordApp.Documents.Open(inputFile);
-
         try
         {
             wordApp.Run("defaultMacro");

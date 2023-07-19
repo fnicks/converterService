@@ -18,11 +18,11 @@ await CreateHostBuilder(args)
                 services.AddEndpointsApiExplorer();
                 services.Configure<IISServerOptions>(options =>
                 {
-                    options.MaxRequestBodySize = 104857600; // 100 MB in bytes
+                    options.MaxRequestBodySize = 209715200; // 200 MB in bytes
                 });
                 services.Configure<KestrelServerOptions>(options =>
                 {
-                    options.Limits.MaxRequestBodySize = 104857600; // 100 MB in bytes
+                    options.Limits.MaxRequestBodySize = 209715200; // 200 MB in bytes
                 });
             })
             .Configure((hostContext, app) =>

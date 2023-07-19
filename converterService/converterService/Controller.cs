@@ -76,12 +76,12 @@ public class OfficeToPdfController : ControllerBase
 
     public void ConvertToPdfA(string sourceFilePath, string destinationFilePath)
     {
-        string ghostscriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ghostscript\\gswin64c.exe");
+        string ghostscriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ghostscript\\gswin64.exe");
         string deviceName = "pdfwrite";
         string outputFileType = "-sOutputFile=";
         string pdfaParams = "-dPDFA=1 -dPDFACompatibilityPolicy=1 -dPDFACompatibilityPolicy=1";
         string outputIntentParams = "-sColorConversionStrategy=UseDeviceIndependentColor";
-        string arguments = $"-dNOPAUSE -dBATCH -dSAFER -sDEVICE={deviceName} {outputFileType}\"{destinationFilePath}\" {pdfaParams} {outputIntentParams} \"{sourceFilePath}\"";
+        string arguments = $"-dNOPAUSE -dBATCH -sDEVICE={deviceName} {outputFileType}\"{destinationFilePath}\" {pdfaParams} {outputIntentParams} \"{sourceFilePath}\"";
         Process process = new Process();
         ProcessStartInfo startInfo = new ProcessStartInfo(ghostscriptPath, arguments);
         startInfo.RedirectStandardOutput = true;

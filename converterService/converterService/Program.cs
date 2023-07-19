@@ -1,4 +1,5 @@
 ﻿using converterService.Services;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 await CreateHostBuilder(args)
     .ConfigureServices(services =>
@@ -10,15 +11,22 @@ await CreateHostBuilder(args)
         LoadEnvironmentVariablesFromFile();
         string port = Environment.GetEnvironmentVariable("PORT");
 
-        webBuilder.UseUrls($"http://0.0.0.0:{port}") // <-----
+        webBuilder.UseUrls($"http://+:{port}") // <-----
             .ConfigureServices(services =>
             {
                 services.AddControllers();
                 services.AddEndpointsApiExplorer();
+                services.Configure<IISServerOptions>(options =>
+                {
+                    options.MaxRequestBodySize = 104857600; // 100 MB in bytes
+                });
+                services.Configure<KestrelServerOptions>(options =>
+                {
+                    options.Limits.MaxRequestBodySize = 104857600; // 100 MB in bytes
+                });
             })
             .Configure((hostContext, app) =>
             {
-                //  app.UseHttpsRedirection();
                 app.UseRouting();
                 app.UseEndpoints(endpoints =>
                 {
@@ -27,6 +35,7 @@ await CreateHostBuilder(args)
 
             });
     })
+    .UseWindowsService()
     .Build()
     .RunAsync();
 

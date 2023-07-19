@@ -29,9 +29,7 @@ public class OfficeToPdfController : ControllerBase
             return BadRequest(new CustomError("Отсутвует файл в запросе", "Файл должен называется file", 400));
         }
 
-
-
-    var fileName = file.FileName;
+        var fileName = file.FileName;
         var filePath = Path.GetTempFileName();
         var pdfPath = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(fileName) + "_converted.pdf");
 
@@ -69,7 +67,8 @@ public class OfficeToPdfController : ControllerBase
         try
         {
             wordApp.Run("defaultMacro");
-        } catch (Exception e) { }
+        }
+        catch (Exception e) { }
         doc.ExportAsFixedFormat(outputFile, WdExportFormat.wdExportFormatPDF);
         doc.Close();
         wordApp.Quit();
@@ -115,7 +114,7 @@ public class OfficeToPdfController : ControllerBase
         string customFormat = now.ToString("yyyy.MM.dd.HH.mm.ss");
         var tempPath = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(customFormat) + ".docx");
         var wordApp = new Microsoft.Office.Interop.Word.Application();
-      //  wordApp.Documents.Add(tempPath);
+        //  wordApp.Documents.Add(tempPath);
         wordApp.Visible = false;
         wordApp.DisplayAlerts = WdAlertLevel.wdAlertsNone;
         Microsoft.Office.Interop.Word.Document doc = wordApp.Documents.Add();
@@ -152,11 +151,11 @@ public class OfficeToPdfController : ControllerBase
         System.Runtime.InteropServices.Marshal.ReleaseComObject(doc);
         System.Runtime.InteropServices.Marshal.ReleaseComObject(excelApp);
     }
-    
+
 
     private string checkFileType(string fileName)
     {
-        string[] word = { "doc", "docx", "docm", "rtf", "xml", "pdf", "odt", "txt", "wbk", "txt", ".docx", ".docm", ".dotx", ".dotm", ".docb" };
+        string[] word = { "doc", "docx", "docm", "rtf", "xml", "odt", "txt", "wbk", "txt", ".docx", ".docm", ".dotx", ".dotm", ".docb" };
         string[] powerPoint = { "pptx", "pptm", "ppt" };
         string[] picture = { "jpg", "jpeg", "png", "tiff", "tif" };
         string[] excel = { "xls", "xlsx", "csv" };

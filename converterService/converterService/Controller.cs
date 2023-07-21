@@ -44,7 +44,10 @@ public class OfficeToPdfController : ControllerBase
         if (ghostscriptProcesses.Length > convertAtOnce)
         {
             Console.WriteLine($"Слишком много запросов. Одновременно может конвертироваться только {convertAtOnce} файлов");
-            return BadRequest(new CustomError("Слишком много запросов", $"Одновременно может конвертироваться только {convertAtOnce} файлов", 400));
+            return new ObjectResult(new CustomError("Слишком много запросов", $"Одновременно может конвертироваться только {convertAtOnce} файлов", 429))
+            {
+                StatusCode = 429
+            };
         }
 
         var fileName = file.FileName;

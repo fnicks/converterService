@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Office.Core;
 using Microsoft.Office.Interop.Word;
+using Newtonsoft.Json;
+using System;
 using System.Diagnostics;
 
 public class CustomError
@@ -27,6 +29,22 @@ public class OfficeToPdfController : ControllerBase
         if (file == null || file.Length == 0)
         {
             return BadRequest(new CustomError("Отсутвует файл в запросе", "Файл должен называется file", 400));
+        }
+        int convertAtOnce = 3;
+        try
+        {
+            convertAtOnce = int.Parse(Environment.GetEnvironmentVariable("CONVERT_AT_ONCE"));
+        }
+        catch
+        {
+            Console.WriteLine("Не получилось достать CONVERT_AT_ONCE из .env файла ");
+        }
+
+        Process[] ghostscriptProcesses = Process.GetProcessesByName("gswin64");
+        if (ghostscriptProcesses.Length > convertAtOnce)
+        {
+            Console.WriteLine($"Слишком много запросов. Одновременно может конвертироваться только {convertAtOnce} файлов");
+            return BadRequest(new CustomError("Слишком много запросов", $"Одновременно может конвертироваться только {convertAtOnce} файлов", 400));
         }
 
         var fileName = file.FileName;
@@ -58,6 +76,29 @@ public class OfficeToPdfController : ControllerBase
         return File(pdfBytes, "application/pdf", $"{Path.GetFileNameWithoutExtension(fileName)}_converted.pdf");
     }
 
+    static void LoadEnvironmentVariablesFromFile()
+    {
+        string filePath = "./.env";
+        if (System.IO.File.Exists(filePath))
+        {
+            foreach (string line in System.IO.File.ReadAllLines(filePath))
+            {
+                string[] parts = line.Split('=', 2);
+                if (parts.Length == 2)
+                {
+                    string key = parts[0].Trim();
+                    string value = parts[1].Trim();
+                    Environment.SetEnvironmentVariable(key, value);
+                }
+            }
+        }
+        else
+        {
+            Console.WriteLine($"Не найден .env файл: {filePath}");
+        }
+    }
+
+
     private void ConvertWordToPdf(string inputFile, string outputFile)
     {
         var wordApp = new Application();
@@ -81,7 +122,7 @@ public class OfficeToPdfController : ControllerBase
         string outputFileType = "-sOutputFile=";
         string pdfaParams = "-dPDFA=1 -dPDFACompatibilityPolicy=1 -dPDFACompatibilityPolicy=1";
         string outputIntentParams = "-sColorConversionStrategy=UseDeviceIndependentColor";
-        string arguments = $"-dNOPAUSE -dBATCH -sDEVICE={deviceName} {outputFileType}\"{destinationFilePath}\" {pdfaParams} {outputIntentParams} \"{sourceFilePath}\"";
+        string arguments = $"-dNOPAUSE -dFastWebView=true -dBATCH -sDEVICE={deviceName} {outputFileType}\"{destinationFilePath}\" {pdfaParams} {outputIntentParams} \"{sourceFilePath}\"";
         Process process = new Process();
         ProcessStartInfo startInfo = new ProcessStartInfo(ghostscriptPath, arguments);
         startInfo.RedirectStandardOutput = true;
@@ -155,23 +196,44 @@ public class OfficeToPdfController : ControllerBase
 
     private string checkFileType(string fileName)
     {
-        string[] word = { "doc", "docx", "docm", "rtf", "xml", "odt", "txt", "wbk", "txt", ".docx", ".docm", ".dotx", ".dotm", ".docb" };
-        string[] powerPoint = { "pptx", "pptm", "ppt" };
-        string[] picture = { "jpg", "jpeg", "png", "tiff", "tif" };
-        string[] excel = { "xls", "xlsx", "csv" };
+        FileTypes fileTypes = readJson();
         string[] array = fileName.Split(".");
         int lenght = array.Length;
         if (lenght > 0)
         {
             string extension = array[lenght - 1];
-            if (word.Contains(extension)) return "word";
-            else if (excel.Contains(extension)) return "excel";
-            else if (picture.Contains(extension)) return "picture";
-            else if (powerPoint.Contains(extension)) return "powerPoint";
+            if (fileTypes.Word.Contains(extension)) return "word";
+            else if (fileTypes.Excel.Contains(extension)) return "excel";
+            else if (fileTypes.Picture.Contains(extension)) return "picture";
+            else if (fileTypes.PowerPoint.Contains(extension)) return "powerPoint";
             else if (extension == "pdf") return "pdf";
             else return "Error";
         }
         else return "Error";
     }
+
+    private FileTypes readJson()
+    {
+        string filePath = "./appsettings.json";
+        if (System.IO.File.Exists(filePath))
+        {
+            string json = System.IO.File.ReadAllText(filePath);
+            FileTypes jsonData = JsonConvert.DeserializeObject<FileTypes>(json);
+            return jsonData;
+        }
+        else
+        {
+            Console.WriteLine($"Не найден файл настроек: {filePath}");
+        }
+        return new FileTypes();
+    }
 }
 
+
+public class FileTypes
+{
+    public string[] Word { get; set; }
+    public string[] PowerPoint { get; set; }
+    public string[] Picture { get; set; }
+    public string[] Excel { get; set; }
+}

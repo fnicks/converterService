@@ -23,11 +23,14 @@ public class CustomError
 [ApiController]
 public class OfficeToPdfController : ControllerBase
 {
+    public static string logFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "log.txt");
+
     [HttpPost]
     public async Task<IActionResult> ConvertToPdf(IFormFile file)
     {
         if (file == null || file.Length == 0)
         {
+            WriteErrorMesage("Файл должен называется file");
             return BadRequest(new CustomError("Отсутвует файл в запросе", "Файл должен называется file", 400));
         }
         int convertAtOnce = 3;
@@ -37,13 +40,13 @@ public class OfficeToPdfController : ControllerBase
         }
         catch
         {
-            Console.WriteLine("Не получилось достать CONVERT_AT_ONCE из .env файла ");
+            WriteErrorMesage("Не получилось достать CONVERT_AT_ONCE из .env файла ");
         }
 
         Process[] ghostscriptProcesses = Process.GetProcessesByName("gswin64");
         if (ghostscriptProcesses.Length > convertAtOnce)
         {
-            Console.WriteLine($"Слишком много запросов. Одновременно может конвертироваться только {convertAtOnce} файлов");
+            WriteErrorMesage($"Слишком много запросов. Одновременно может конвертироваться только {convertAtOnce} файлов");
             return new ObjectResult(new CustomError("Слишком много запросов", $"Одновременно может конвертироваться только {convertAtOnce} файлов", 429))
             {
                 StatusCode = 429
@@ -65,7 +68,9 @@ public class OfficeToPdfController : ControllerBase
         else if (format == "excel") ConvertExcelToPdf(filePath, pdfPath);
         else if (format == "picture") ConvertPictureToPdf(filePath, pdfPath);
         else if (format == "powerPoint") ConvertPowerPointToPdf(filePath, pdfPath);
-        else return BadRequest(new CustomError("Неверный формат", "Файл не может быть сконвертирован в PDF, так как формат не поддерживается", 400));
+        else {
+            WriteErrorMesage("Файл не может быть сконвертирован в PDF, так как формат не поддерживается");
+            return BadRequest(new CustomError("Неверный формат", "Файл не может быть сконвертирован в PDF, так как формат не поддерживается", 400)); }
         byte[] pdfBytes;
         if (convertAgain)
         {
@@ -75,8 +80,26 @@ public class OfficeToPdfController : ControllerBase
         else pdfBytes = await System.IO.File.ReadAllBytesAsync(pdfPath);
         System.IO.File.Delete(filePath);
         System.IO.File.Delete(pdfPath);
-
+        WriteSuccessMesage($"Файл {fileName} успешно конвертирован по алгоритму {format}");
         return File(pdfBytes, "application/pdf", $"{Path.GetFileNameWithoutExtension(fileName)}_converted.pdf");
+    }
+
+    public static void WriteErrorMesage(string message)
+    {
+        Console.ForegroundColor = ConsoleColor.DarkRed;
+        Console.WriteLine(message);
+        Console.ResetColor();
+        string formattedDateTime = DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss");
+        System.IO.File.AppendAllText(logFilePath, formattedDateTime + " | ERROR: " + message + Environment.NewLine);
+    }
+
+    public static void WriteSuccessMesage(string message)
+    {
+        Console.ForegroundColor = ConsoleColor.DarkGreen;
+        Console.WriteLine(message);
+        Console.ResetColor();
+        string formattedDateTime = DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss");
+        System.IO.File.AppendAllText(logFilePath, formattedDateTime + " | SUCCESS: " + message + Environment.NewLine);
     }
 
     static void LoadEnvironmentVariablesFromFile()
@@ -97,7 +120,7 @@ public class OfficeToPdfController : ControllerBase
         }
         else
         {
-            Console.WriteLine($"Не найден .env файл: {filePath}");
+            WriteErrorMesage($"Не найден .env файл: {filePath}");
         }
     }
 

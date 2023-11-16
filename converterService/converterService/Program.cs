@@ -51,7 +51,8 @@ static IHostBuilder CreateHostBuilder(string[] args) =>
 
 static void LoadEnvironmentVariablesFromFile()
 {
-    string filePath = "./.env";
+    string appDirectory = AppDomain.CurrentDomain.BaseDirectory;
+    string filePath = Path.Combine(appDirectory, ".env");
     if (File.Exists(filePath))
     {
         foreach (string line in File.ReadAllLines(filePath))

@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Office.Core;
-using Microsoft.Office.Interop.Word;
+using Word = Microsoft.Office.Interop.Word;
 using Newtonsoft.Json;
 using System;
 using System.Diagnostics;
+using Microsoft.Office.Interop.Word;
 
 public class CustomError
 {
@@ -127,7 +128,7 @@ public class OfficeToPdfController : ControllerBase
 
     private void ConvertWordToPdf(string inputFile, string outputFile)
     {
-        var wordApp = new Application();
+        var wordApp = new Word.Application();
         wordApp.Visible = false;
         wordApp.DisplayAlerts = WdAlertLevel.wdAlertsNone;
         var doc = wordApp.Documents.Open(inputFile);

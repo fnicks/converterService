@@ -1,2 +1,2 @@
-dotnet publish ..\converterService\converterService.csproj -o ..\Release\Converter\ -r win-x64 --configuration Debug -p:TrimMode=CopyUsed -p:PublishTrimmed=True -p:PublishSingleFile=true --self-contained true -p:EnableCompressionInSingleFile=true -p:Version=1.1
+dotnet publish ..\converterService\converterService.csproj -o ..\Release\Converter\ -r win-x64 --configuration Release --self-contained true -p:Version=1.1
 pause
